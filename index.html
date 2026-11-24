@@ -2957,6 +2957,18 @@ function buildPensionForm(id) {
   return `
     <div class="field-grid cols-3" style="margin-bottom:14px">
       <div class="field">
+        <label for="pen-type-${id}">Pension Type</label>
+        <select id="pen-type-${id}">
+          <option value="">Select pension type</option>
+          <option value="private">Private</option>
+          <option value="federal">Federal</option>
+          <option value="state_local">State/local</option>
+          <option value="military">Military</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid cols-3" style="margin-bottom:14px">
+      <div class="field">
         <label>Monthly Benefit <span class="req">*</span></label>
         <input type="number" id="pen-amount-${id}" placeholder="e.g. 3500"
           oninput="updateIncomeSubtitle(${id})">
@@ -2975,7 +2987,7 @@ function buildPensionForm(id) {
       <div class="sub-section-title">Survivor Benefit</div>
       <div class="field-grid cols-2">
         <div class="field">
-          <label>Pension Type</label>
+          <label>Survivor Benefit Type</label>
           <select id="pen-survivor-${id}" onchange="togglePensionSurvivor(${id})">
             <option value="single">Single Life — no survivor benefit</option>
             <option value="joint" selected>Joint &amp; Survivor</option>
@@ -5744,7 +5756,10 @@ function readIncomes(prof) {
         const survType = document.getElementById(`pen-survivor-${id}`)?.value || 'single';
         const survYrsEl = document.getElementById(`pen-surv-years-${id}`);
         const survYrsVal = survYrsEl?.value ? parseFloat(survYrsEl.value) : Infinity;
+        const pensionType = document.getElementById(`pen-type-${id}`)?.value || '';
         r = { ...r,
+          pensionType,
+          statePensionSource: ({private:'privatePension',federal:'governmentPension',state_local:'governmentPension',military:'militaryPension'})[pensionType] || '',
           amount:    parseFloat(document.getElementById(`pen-amount-${id}`)?.value) || 0,
           startAge:  parseInt(document.getElementById(`pen-start-${id}`)?.value) || 65,
           endAge:    parseInt(document.getElementById(`pen-end-${id}`)?.value) || 0,
