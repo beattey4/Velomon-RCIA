@@ -20856,12 +20856,12 @@ window.serializeClientData=function(){
   });
 
   return {
-    version:'3.9.81-intake',
+    version:'3.10.05-intake',
     schemaVersion:'rcia-input-3.9.81',
     fileType:'RCIA_CLIENT_INTAKE',
     submittedAt:new Date().toISOString(),
     clientName:((document.getElementById('p1_first')?.value||'')+' '+(document.getElementById('p1_last')?.value||'')).trim()||'Client',
-    sourceBuild:'RCIA-Client-Intake-3.9.81',
+    sourceBuild:'RCIA-Client-Intake-3.10.05',
     fields:fields,
     incomes:incomes,
     assets:assets
@@ -20985,7 +20985,7 @@ if(document.readyState==='loading'){
   Broad DOM MutationObservers from the intake revisions have been removed. UI repair is driven by
   explicit render, restore, change and submit hooks already contained below.
 */
-window.RCIA_CLIENT_INTAKE_VERSION='3.10.00';
+window.RCIA_CLIENT_INTAKE_VERSION='3.10.05';
 window.RCIA_VERSION='3.10.00';
 
 /* ---- consolidated from rcia-lifestyle-input-v3985-script ---- */
@@ -21719,11 +21719,11 @@ window.rciaV3987SyncEmployerPlan=function(id){
 window.rciaV3987TaxProfile=function(id,profile){
   var y=document.getElementById('nq-yield-'+id), o=document.getElementById('nq-ord-pct-'+id), n=document.getElementById('nq-profile-note-'+id);
   var m={
-    stocks:{yield:1.5,ord:0,note:'RCIA assumes relatively low annual taxable income and treats realized appreciation primarily as long-term capital gain.'},
-    balanced:{yield:2.5,ord:0,note:'RCIA assumes moderate annual taxable income and treats realized appreciation primarily as long-term capital gain.'},
-    income:{yield:4.5,ord:0,note:'RCIA assumes a higher level of annual taxable interest/dividend income; realized appreciation is treated primarily as long-term capital gain.'},
-    cashlike:{yield:4.5,ord:0,note:'RCIA assumes most investment return is recognized annually as taxable interest or similar income.'},
-    unsure:{yield:2.5,ord:0,note:'RCIA uses a balanced-account assumption. You can provide cost basis for greater precision.'}
+    stocks:{yield:1.5,ord:20,note:'RCIA assumes relatively low annual taxable income and allocates realized taxable gains 80% to long-term capital gains and 20% to ordinary income.'},
+    balanced:{yield:2.5,ord:20,note:'RCIA assumes moderate annual taxable income and allocates realized taxable gains 80% to long-term capital gains and 20% to ordinary income.'},
+    income:{yield:4.5,ord:20,note:'RCIA assumes a higher level of annual taxable interest/dividend income; realized taxable gains are allocated 80% to long-term capital gains and 20% to ordinary income.'},
+    cashlike:{yield:4.5,ord:20,note:'RCIA assumes most investment return is recognized annually as taxable interest or similar income.'},
+    unsure:{yield:2.5,ord:20,note:'RCIA uses a balanced-account assumption. You can provide cost basis for greater precision.'}
   };
   var v=m[profile]||m.unsure;
   if(y)y.value=v.yield;if(o)o.value=v.ord;if(n)n.textContent=v.note;
@@ -21735,15 +21735,15 @@ window.buildNonQualForm=function(id){
       <div class="field-grid cols-3" style="margin-bottom:14px">
         <div class="field"><label>Account Label</label><input type="text" id="asset-label-${id}" placeholder="e.g. Fidelity Brokerage" oninput="updateAssetSubtitle(${id})"></div>
         <div class="field"><label>Current Balance <span class="req">*</span></label><input type="number" id="asset-bal-${id}" placeholder="e.g. 250000" oninput="updateAssetSubtitle(${id})"></div>
-        <div class="field"><label>Cost Basis <span class="opt">(optional)</span></label><input type="number" id="nq-basis-${id}" placeholder="Enter if known"><span class="field-hint">Usually available on the account statement. If left blank, RCIA will use its standard taxable-account assumption.</span></div>
+        <div class="field"><label>Cost Basis <span class="opt">(optional)</span></label><input type="number" id="nq-basis-${id}" placeholder="Enter if known"><span class="field-hint">Usually available on the account statement. If left blank, RCIA assumes zero starting cost basis (a conservative estimate, not actual cost basis).</span></div>
       </div>
       <div class="field-grid cols-3">
         <div class="field"><label>Annual Growth Rate</label><div style="display:flex;align-items:center;gap:8px"><input type="number" id="asset-growth-${id}" value="7.0" min="0" max="20" step="0.1" style="max-width:90px" oninput="updateAssetSubtitle(${id})"><span>%</span></div></div>
         <div class="field"><label>Annual Fee Rate</label><div style="display:flex;align-items:center;gap:8px"><input type="number" id="asset-fee-${id}" value="0.5" min="0" max="4" step="0.05" style="max-width:90px"><span>%</span></div></div>
         <div class="field"><label>What best describes this account?</label><select id="nq-profile-${id}" onchange="rciaV3987TaxProfile(${id},this.value)"><option value="stocks">Mostly stocks / stock funds</option><option value="balanced" selected>Mix of stocks and bonds</option><option value="income">Mostly bonds / income investments</option><option value="cashlike">Mostly cash, CDs or money market</option><option value="unsure">I'm not sure</option></select><span class="field-hint">RCIA uses this to estimate how investment income and withdrawals are taxed.</span></div>
       </div>
-      <input type="hidden" id="nq-yield-${id}" value="2.5"><input type="hidden" id="nq-ord-pct-${id}" value="0">
-      <div class="rcia-v3987-tax-profile-note" id="nq-profile-note-${id}">RCIA assumes moderate annual taxable income and treats realized appreciation primarily as long-term capital gain.</div>
+      <input type="hidden" id="nq-yield-${id}" value="2.5"><input type="hidden" id="nq-ord-pct-${id}" value="20">
+      <div class="rcia-v3987-tax-profile-note" id="nq-profile-note-${id}">RCIA assumes moderate annual taxable income and allocates realized taxable gains 80% to long-term capital gains and 20% to ordinary income.</div>
     </div>
     ${typeof distributionScheduleEditor==='function'?distributionScheduleEditor(id,'Planned Distributions'):''}
     <div class="sub-section"><div class="sub-section-title">Tax Treatment</div><div class="info-callout"><span class="info-icon">ℹ</span><p style="font-size:12px">RCIA estimates annual taxable investment income, capital gains on withdrawals, NIIT when applicable, and the resulting impact on MAGI and IRMAA. Entering actual cost basis improves the withdrawal-tax calculation but is not required.</p></div></div>`;
@@ -22536,7 +22536,7 @@ else {setTimeout(repairAll3998,50);setTimeout(repairAll3998,700);}
 
 
 /* Final version wins over legacy version assignments inside historical base code. */
-window.RCIA_CLIENT_INTAKE_VERSION='3.10.00';
+window.RCIA_CLIENT_INTAKE_VERSION='3.10.05';
 window.RCIA_VERSION='3.10.00';
 </script>
 </body>
